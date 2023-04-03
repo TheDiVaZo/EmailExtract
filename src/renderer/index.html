@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="header">
+        <h4 id="plugin-name">Email Extractor</h4>
+        <p id="description">Инструмент для поиска всех электронных адресов с сайта</p>
+    </div>
+    <div class="content">
+        <div class="settings">
+            <div class="setting" id="deep-search">
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+                <h4>Глубокий поиск</h4>
+            </div>
+            <div class="setting" id="async-search">
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+                <h4>Асинхронный режим</h4>
+            </div>
+            <div class="setting" id="deep-number">
+                <input type="number" id="count">
+                <h4>Глубина поиска</h4>
+            </div>
+        </div>
+        <div id="output">
+            <ul id="email-list">
+                <li style="font-size:14px;">Сюда будут выведены все результаты. Вы так же можете скачать все найденные адреса одним текстовым файлом</li>
+            </ul>
+        </div>
+        <div class="button-list">
+            <button id="download" class="btn"><i class="fa fa-download"></i> Скачать .txt</button>
+            <button id="copy" class="btn">Скопировать</button>
+        </div>
+    </div>
+    <div class="generate-block">
+        <input id="link-site" type="text" placeholder="Cсылка на сайт формата https:" value="https://www.google.com"></input>
+        <button class="btn" id="button-generator">Начать поиск</button>
+    </div>
+    <script>
+        require("./render.bundle.js")
+    </script>
+</body>
+</html>

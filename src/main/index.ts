@@ -1,7 +1,7 @@
 import {data} from "./interfaces";
 
 import {app, BrowserWindow, ipcMain, Menu} from "electron";
-import {ACTION_EMAIL, CHANNELS} from "../config";
+import {ACTION_EMAIL, CHANNELS, STATUS} from "../config";
 import {isExternalLink, readURL} from "./utils";
 import {CheerioAPI} from "cheerio";
 
@@ -33,34 +33,38 @@ function createWindow() {
         win = null;
     })
 }
-
 ipcMain.on(CHANNELS.EXTRACT_EMAIL, async (event, data: data) => {
+    let finishedProcess = 0;
+    event.sender.send(CHANNELS.STATUS, STATUS.WAIT, 1, 1)
     await deepExtractEmails(data, function (email, action) {
         console.log(`Email "${email}" has been processed`)
         event.sender.send(CHANNELS.SAVE_EMAIL, email, action)
+    }, async (allProcess)=>{
+        finishedProcess++;
+        event.sender.send(CHANNELS.STATUS, STATUS.ADDING, finishedProcess, allProcess.length);
     })
 });
 
-async function deepExtractEmails(data: data, renderFunction: ( newEmail: string, action: ACTION_EMAIL )=>void) {
+async function deepExtractEmails(data: data, renderFunction: ( newEmail: string, action: ACTION_EMAIL )=>void, processPromiseFunction: (allProcess: Promise<any>[])=>Promise<void>) {
     let url = data.url;
     let maxDeep = data.settings.isDeep ? data.settings.deepNumber : 1
     let isAsync = data.settings.isAsync;
+    let allProcess: Promise<any>[] = [];
 
-    await generateExtractFunction(url, 1, maxDeep, renderFunction);
+    generateExtractFunction(allProcess,url, 1, maxDeep, renderFunction, processPromiseFunction);
 
 }
-
-async function generateExtractFunction(url: string, currentDeep: number, maxDeep: number, renderFunction: ( newEmail: string, action: ACTION_EMAIL )=>void) {
-    asyncGetCheerioDoc(url, async (doc)=> {
-        asyncExtractEmails(doc, async (email)=>{
+async function generateExtractFunction(allProcess: Promise<any>[],url: string, currentDeep: number, maxDeep: number, renderFunction: ( newEmail: string, action: ACTION_EMAIL )=>void, processPromiseFunction: (allProcess: Promise<any>[])=>Promise<void>) {
+    allProcess.push(asyncGetCheerioDoc(url, async (doc)=> {
+        allProcess.push(asyncExtractEmails(doc, async (email)=>{
             renderFunction(email, ACTION_EMAIL.ADD);
-        })
+        }).finally(()=>processPromiseFunction(allProcess)))
         if (currentDeep < maxDeep) {
-            asyncExtractLinks(doc, async (url)=>{
-                generateExtractFunction(url, currentDeep+1, maxDeep, renderFunction)
-            })
+            allProcess.push(asyncExtractLinks(doc, async (url)=>{
+                allProcess.push(generateExtractFunction(allProcess, url, currentDeep+1, maxDeep, renderFunction, processPromiseFunction).finally(()=>processPromiseFunction(allProcess)))
+            }).finally(()=>processPromiseFunction(allProcess)))
         }
-    })
+    }).finally(()=>processPromiseFunction(allProcess)))
 }
 
 async function asyncGetCheerioDoc(url: string, cheerioDocHandler: (doc: CheerioAPI)=>Promise<void>) {

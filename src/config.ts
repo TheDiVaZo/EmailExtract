@@ -2,7 +2,8 @@ export const CHANNELS = {
     DISPLAY_EMAIL: "display_email",
     SAVE_EMAIL: "save_email",
     EXTRACT_EMAIL: "extract_email",
-    CONSOLE: "console"
+    CONSOLE: "console",
+    STATUS: "status",
 }
 
 export const KEY_LOCAL_STORAGE = {
@@ -14,4 +15,9 @@ export enum ACTION_EMAIL {
     ADD,
     REMOVE,
     CLEAR,
+}
+
+export enum STATUS {
+    WAIT,
+    ADDING
 }

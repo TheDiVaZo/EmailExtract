@@ -1,5 +1,5 @@
 import {data, settings} from "../main/interfaces";
-import {ACTION_EMAIL, CHANNELS} from "../config";
+import {ACTION_EMAIL, CHANNELS, STATUS} from "../config";
 
 const {ipcRenderer} = require("electron")
 const stream = require("stream");
@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", ()=>{
 
     buttonExtract.onclick=()=>{
         emailStringList.clear();
+        document.getElementById("number-emails").innerText="0";
         emailList.innerHTML = ""
         let deepNumber = document.getElementById("deep-number").querySelector("input").value;
         let settings: settings = {
@@ -33,8 +34,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
     let downloadButton = document.getElementById("download");
     let copyButton = document.getElementById("copy")
 
-    const fileData = Array.from(emailStringList).join('\n')
     copyButton.onclick = () => {
+        const fileData = Array.from(emailStringList).join('\n')
         navigator.clipboard.writeText(fileData)
             .then(() => {
                 let prevText = copyButton.innerText;
@@ -48,8 +49,8 @@ document.addEventListener("DOMContentLoaded", ()=>{
             });
     }
     downloadButton.onclick = () => {
+        const fileData = Array.from(emailStringList).join('\n')
         // Создаем файл через Blob
-        console.log(fileData)
         const blob = new Blob([fileData], { type: 'text/plain' });
 
         // Создаем URL для скачивания файлаw
@@ -89,9 +90,29 @@ ipcRenderer.on(CHANNELS.SAVE_EMAIL, (event, email: string, action: ACTION_EMAIL)
     }
 });
 
+let timeOut;
+ipcRenderer.on(CHANNELS.STATUS, (event, status: STATUS, number_complete_process: number, number_all_process)=>{
+    let outputStatus = document.getElementById("output-status");
+    switch (status) {
+        case STATUS.ADDING: {
+            if (timeOut !== null) clearTimeout(timeOut)
+            timeOut = setTimeout(()=>{
+                outputStatus.innerText="Состояние: Выполнено"
+            }, 3500);
+            outputStatus.innerText = "Состояние: Извлечение... "+String(Math.ceil(number_complete_process/number_all_process*100)) + "%";
+            break;
+        }
+        case STATUS.WAIT: {
+            outputStatus.innerText="Состояние: Ожидание"
+        }
+    }
+})
+
 function addEmail(email: string) {
     let emailList = document.getElementById("email-list");
     if (document.getElementById(email) !== null) return;
+    let numberEmail = document.getElementById("number-emails");
+    numberEmail.innerText = String(Number.parseInt(numberEmail.innerText)+1);
     let li = document.createElement("li");
     li.id = email;
     li.appendChild(document.createTextNode(email));

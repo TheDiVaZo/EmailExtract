@@ -17,7 +17,14 @@
         <div class="settings">
             <div class="setting" id="deep-search">
                 <label class="switch">
-                    <input type="checkbox">
+                    <input type="checkbox" onchange="{
+                        if (checked) {
+                            document.getElementById('deep-number').style.visibility = 'visible';
+                        }
+                        else {
+                            document.getElementById('deep-number').style.visibility = 'hidden';
+                        }
+                    }">
                     <span class="slider"></span>
                 </label>
                 <h4>Глубокий поиск</h4>
@@ -29,12 +36,14 @@
                 </label>
                 <h4>Асинхронный режим</h4>
             </div>
-            <div class="setting" id="deep-number">
-                <input type="number" id="count">
+            <div class="setting" id="deep-number" style="visibility: hidden">
+                <input type="number" id="count" value="2">
                 <h4>Глубина поиска</h4>
             </div>
         </div>
         <div id="output">
+            <div id="output-status">Состояние: Ожидание</div>
+            <div>Кол-во: <b id="number-emails">0</b></div>
             <ul id="email-list">
                 <li style="font-size:14px;">Сюда будут выведены все результаты. Вы так же можете скачать все найденные адреса одним текстовым файлом</li>
             </ul>
@@ -45,7 +54,7 @@
         </div>
     </div>
     <div class="generate-block">
-        <input id="link-site" type="text" placeholder="Cсылка на сайт формата https:" value="https://www.google.com"></input>
+        <input id="link-site" type="text" placeholder="Cсылка на сайт формата https" value="https://www.google.com"></input>
         <button class="btn" id="button-generator">Начать поиск</button>
     </div>
     <script>

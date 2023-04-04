@@ -1,6 +1,7 @@
 * {
     margin: 0px;
     padding: 0px;
+    font-family: 'Roboto', sans-serif;
 }
 
 .switch {
@@ -69,7 +70,6 @@ li {
 
 .header {
     text-align: center;
-    font-family: 'Roboto', sans-serif;
     background-color: #eeeeee;
     margin: 0px;
     padding: 18px;
@@ -192,4 +192,9 @@ li {
     padding: 10px;
     width: 100px;
     float: left;
+}
+
+#output-status {
+    font-size: 14px;
+    margin-bottom: 5px;
 }
